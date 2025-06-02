@@ -2,23 +2,91 @@
 <html>
 <head>
   <style>
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
     body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 16px;
+      background-color: #f5f5f5;
       color: #333;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      height: 100vh;
+      overflow: hidden;
     }
     
     .container {
       display: flex;
+      height: 100%;
+    }
+    
+    .left-column {
+      background: rgba(255,255,255,.9);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, .075);
+      display: flex;
       flex-direction: column;
+      justify-content: space-between;
       gap: 16px;
-      width: 300px;
+      margin: 4px;
+      overflow-y: auto;
+    }
+    
+    .right-column {
+      align-items: center;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: -12px;
     }
     
     label {
       font-weight: 500;
-      margin-bottom: 4px;
       display: block;
     }
     
@@ -31,127 +99,408 @@
       font-family: monospace;
       resize: vertical;
     }
+
+    input, button, textarea {
+      border-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.02);
+      padding: 8px;
+    }
     
     input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #E6E6E6;
-      border-radius: 2px;
+      border: 1px solid rgba(0,0,0,.1);
     }
     
     button {
-      background-color: #18A0FB;
+      background: rgba(0,0,0,.75);
       color: white;
       border: none;
-      border-radius: 6px;
-      padding: 8px 16px;
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
     }
     
     button:hover {
-      background-color: #0D8DE3;
+      background: #005A43;
     }
     
     button:disabled {
       background-color: #CCCCCC;
       cursor: not-allowed;
     }
+
+    .section-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+    }
     
     .preview-box {
-      width: 100px;
-      height: 100px;
-      background-color: white;
-      border-radius: 4px;
-      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 10px;
+      height: 240px;
+      transition: background-color 0.3s ease;
+      width: 240px;
     }
     
     .error {
+      background: #FFE5E2;
+      border-radius: 4px;
       color: #D92C2C;
-      font-size: 12px;
-      margin-top: 4px;
+      display: none;
+      padding: 8px;
     }
     
-    .section {
+    .inline-form {
+      align-items: center;
+      border-top: 1px solid rgba(0, 0, 0, .05);
+      display: flex;
+      gap: 4px;
+      padding: 12px;
+    }
+
+    .inline-form label {
+      display: none;
+    }
+
+    .inline-form input {
+      flex: 1;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 600;
       margin-bottom: 16px;
+    }
+    
+    /* Color picker styles */
+    .color-picker-section {
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0,0,0,.075);
+      border-radius: 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.02);
+      display: flex;
+      margin-bottom: 12px;
+      padding: 8px;
+    }
+    
+    .color-picker-label {
+      display: none;
+    }
+    
+    .color-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,.075);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .color-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    /* Popover styles */
+    .popover {
+      position: absolute;
+      top: -180px; /* Position above the color picker */
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 16px;
+      z-index: 100;
+      display: none;
+      width: 220px;
+    }
+    
+    .popover.active {
+      display: block;
+    }
+    
+    .popover-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    
+    .preset-colors {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .preset-color {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #E6E6E6;
+    }
+    
+    .color-picker-container {
+      position: relative;
+    }
+    
+    .color-pickers-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .color-picker-group {
+      align-items: center;
+      display: flex;
+      gap: 4px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="section">
-      <label for="css-input">CSS Box Shadow</label>
-      <textarea id="css-input" placeholder="e.g., 0px 4px 8px rgba(0, 0, 0, 0.1)"></textarea>
-      <div id="error-message" class="error"></div>
+    <!-- Left Column: Settings and Controls -->
+    <div class="left-column">
+      
+      <div class="section-preview">
+        <label for="css-input">CSS Box Shadow</label>
+        <textarea id="css-input" placeholder="e.g., 0px 4px 8px rgba(0, 0, 0, 0.1)"></textarea>
+        <div id="error-message" class="error"></div>
+        <button id="preview-btn">Preview</button>
+      </div>
+      
+      <div class="section">
+        <div class="inline-form">
+          <label for="style-name">Style Name</label>
+          <input type="text" id="style-name" placeholder="Shadow name">
+          <button id="create-btn" disabled>Create style</button>
+        </div>
+      </div>
+      
     </div>
     
-    <div class="section">
-      <label>Preview</label>
+    <!-- Right Column: Full-height Preview -->
+    <div class="right-column" id="preview-background">
       <div class="preview-box" id="preview"></div>
+        <div class="color-picker-section">
+          <div class="color-pickers-row">
+            <!-- Background color picker -->
+            <div class="color-picker-group">
+              <div class="color-picker-label">Background</div>
+              <div class="color-picker-container">
+                <div class="color-circle" id="bg-color-circle" style="background-color: #F5F5F5;">
+                  <input type="color" class="color-input" id="bg-color-picker" value="#F5F5F5">
+                </div>
+                <div class="popover" id="bg-color-popover">
+                  <div class="popover-title">Select Background Color</div>
+                  <div class="preset-colors" id="bg-preset-colors">
+                    <div class="preset-color" style="background-color: #FFFFFF;" data-color="#FFFFFF" title="White"></div>
+                    <div class="preset-color" style="background-color: #F5F5F5;" data-color="#F5F5F5" title="Light Gray"></div>
+                    <div class="preset-color" style="background-color: #E0E0E0;" data-color="#E0E0E0" title="Gray"></div>
+                    <div class="preset-color" style="background-color: #333333;" data-color="#333333" title="Dark Gray"></div>
+                    <div class="preset-color" style="background-color: #000000;" data-color="#000000" title="Black"></div>
+                    <div class="preset-color" style="background-color: #18A0FB;" data-color="#18A0FB" title="Blue"></div>
+                    <div class="preset-color" style="background-color: #FF3366;" data-color="#FF3366" title="Red"></div>
+                    <div class="preset-color" style="background-color: #00CC66;" data-color="#00CC66" title="Green"></div>
+                    <div class="preset-color" style="background-color: #FFCC00;" data-color="#FFCC00" title="Yellow"></div>
+                    <div class="preset-color" style="background-color: #9966FF;" data-color="#9966FF" title="Purple"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Card color picker -->
+            <div class="color-picker-group">
+              <div class="color-picker-label">Card</div>
+              <div class="color-picker-container">
+                <div class="color-circle" id="card-color-circle" style="background-color: #FFFFFF;">
+                  <input type="color" class="color-input" id="card-color-picker" value="#FFFFFF">
+                </div>
+                <div class="popover" id="card-color-popover">
+                  <div class="popover-title">Select Card Color</div>
+                  <div class="preset-colors" id="card-preset-colors">
+                    <div class="preset-color" style="background-color: #FFFFFF;" data-color="#FFFFFF" title="White"></div>
+                    <div class="preset-color" style="background-color: #F5F5F5;" data-color="#F5F5F5" title="Light Gray"></div>
+                    <div class="preset-color" style="background-color: #E0E0E0;" data-color="#E0E0E0" title="Gray"></div>
+                    <div class="preset-color" style="background-color: #333333;" data-color="#333333" title="Dark Gray"></div>
+                    <div class="preset-color" style="background-color: #000000;" data-color="#000000" title="Black"></div>
+                    <div class="preset-color" style="background-color: #18A0FB;" data-color="#18A0FB" title="Blue"></div>
+                    <div class="preset-color" style="background-color: #FF3366;" data-color="#FF3366" title="Red"></div>
+                    <div class="preset-color" style="background-color: #00CC66;" data-color="#00CC66" title="Green"></div>
+                    <div class="preset-color" style="background-color: #FFCC00;" data-color="#FFCC00" title="Yellow"></div>
+                    <div class="preset-color" style="background-color: #9966FF;" data-color="#9966FF" title="Purple"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>      
     </div>
-    
-    <div class="section">
-      <label for="style-name">Style Name</label>
-      <input type="text" id="style-name" placeholder="e.g., Small Shadow">
-    </div>
-    
-    <button id="preview-btn">Preview Shadow</button>
-    <button id="create-btn" disabled>Create Figma Style</button>
   </div>
-
   <script>
-  // Get UI elements
-  const cssInput = document.getElementById('css-input');
-  const styleName = document.getElementById('style-name');
-  const previewBtn = document.getElementById('preview-btn');
-  const createBtn = document.getElementById('create-btn');
-  const previewBox = document.getElementById('preview');
-  const errorMessage = document.getElementById('error-message');
-  
-  // Preview button click handler
-  previewBtn.onclick = () => {
-    let cssValue = cssInput.value.trim();
-    if (!cssValue) {
-      errorMessage.textContent = 'Please enter a CSS box-shadow value';
-      return;
+    // Get UI elements
+    const cssInput = document.getElementById('css-input');
+    const styleName = document.getElementById('style-name');
+    const previewBtn = document.getElementById('preview-btn');
+    const createBtn = document.getElementById('create-btn');
+    const previewBox = document.getElementById('preview');
+    const errorMessage = document.getElementById('error-message');
+    
+    // Background color picker elements
+    const bgColorPicker = document.getElementById('bg-color-picker');
+    const bgColorCircle = document.getElementById('bg-color-circle');
+    const bgColorPopover = document.getElementById('bg-color-popover');
+    const bgPresetColors = document.querySelectorAll('#bg-preset-colors .preset-color');
+    
+    // Card color picker elements
+    const cardColorPicker = document.getElementById('card-color-picker');
+    const cardColorCircle = document.getElementById('card-color-circle');
+    const cardColorPopover = document.getElementById('card-color-popover');
+    const cardPresetColors = document.querySelectorAll('#card-preset-colors .preset-color');
+    
+    // Initialize with default colors
+    let currentBgColor = '#F5F5F5';
+    let currentCardColor = '#FFFFFF';
+    document.body.style.backgroundColor = currentBgColor; // Change body background instead
+    previewBox.style.backgroundColor = currentCardColor;
+    
+    // Toggle background color popover
+    bgColorCircle.addEventListener('click', (e) => {
+      // Only toggle if the click was on the circle itself, not the color input
+      if (e.target === bgColorCircle) {
+        bgColorPopover.classList.toggle('active');
+        cardColorPopover.classList.remove('active'); // Close the other popover
+        e.stopPropagation();
+      }
+    });
+    
+    // Toggle card color popover
+    cardColorCircle.addEventListener('click', (e) => {
+      // Only toggle if the click was on the circle itself, not the color input
+      if (e.target === cardColorCircle) {
+        cardColorPopover.classList.toggle('active');
+        bgColorPopover.classList.remove('active'); // Close the other popover
+        e.stopPropagation();
+      }
+    });
+    
+    // Close popovers when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!bgColorPopover.contains(e.target) && e.target !== bgColorCircle) {
+        bgColorPopover.classList.remove('active');
+      }
+      if (!cardColorPopover.contains(e.target) && e.target !== cardColorCircle) {
+        cardColorPopover.classList.remove('active');
+      }
+    });
+    
+    // Background color picker change handler
+    bgColorPicker.addEventListener('input', (e) => {
+      currentBgColor = e.target.value;
+      updateBackgroundColor();
+    });
+    
+    // Card color picker change handler
+    cardColorPicker.addEventListener('input', (e) => {
+      currentCardColor = e.target.value;
+      updateCardColor();
+    });
+    
+    // Background preset color click handler
+    bgPresetColors.forEach(preset => {
+      preset.addEventListener('click', () => {
+        currentBgColor = preset.getAttribute('data-color');
+        bgColorPicker.value = currentBgColor;
+        updateBackgroundColor();
+        bgColorPopover.classList.remove('active');
+      });
+    });
+    
+    // Card preset color click handler
+    cardPresetColors.forEach(preset => {
+      preset.addEventListener('click', () => {
+        currentCardColor = preset.getAttribute('data-color');
+        cardColorPicker.value = currentCardColor;
+        updateCardColor();
+        cardColorPopover.classList.remove('active');
+      });
+    });
+    
+    // Update background color function
+    function updateBackgroundColor() {
+      document.body.style.backgroundColor = currentBgColor; // Change body background instead
+      bgColorCircle.style.backgroundColor = currentBgColor;
     }
     
-    try {
-      // Clean up the CSS value for preview:
-      // 1. Remove 'box-shadow:' prefix if present
-      if (cssValue.toLowerCase().indexOf('box-shadow:') === 0) {
-        cssValue = cssValue.substring('box-shadow:'.length).trim();
-      }
-      
-      // 2. Remove trailing semicolon if present
-      if (cssValue.endsWith(';')) {
-        cssValue = cssValue.slice(0, -1).trim();
-      }
-      
-      // Apply the shadow directly to the preview box
-      previewBox.style.boxShadow = cssValue;
-      errorMessage.textContent = '';
-      
-      // Send to the plugin code for validation (send the original value)
-      parent.postMessage({ pluginMessage: { 
-        type: 'preview-shadow',
-        css: cssInput.value.trim()
-      } }, '*');
-      
-      // Enable the create button
-      createBtn.disabled = false;
-    } catch (error) {
-      errorMessage.textContent = 'Invalid box-shadow format';
-      createBtn.disabled = true;
+    // Update card color function
+    function updateCardColor() {
+      previewBox.style.backgroundColor = currentCardColor;
+      cardColorCircle.style.backgroundColor = currentCardColor;
     }
-  };
+
+    // Function to show error message
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block'; // Show the error element
+    }
+
+    // Function to hide error message
+    function hideError() {
+      errorMessage.textContent = '';
+      errorMessage.style.display = 'none'; // Hide the error element
+    }    
+    
+    // Preview button click handler
+    previewBtn.onclick = () => {
+      let cssValue = cssInput.value.trim();
+      if (!cssValue) {
+        showError('Please enter a CSS box-shadow value');
+        return;
+      }
+      
+      try {
+        // Clean up the CSS value for preview:
+        // 1. Remove 'box-shadow:' prefix if present
+        if (cssValue.toLowerCase().indexOf('box-shadow:') === 0) {
+          cssValue = cssValue.substring('box-shadow:'.length).trim();
+        }
+        
+        // 2. Remove trailing semicolon if present
+        if (cssValue.endsWith(';')) {
+          cssValue = cssValue.slice(0, -1).trim();
+        }
+        
+        // Apply the shadow directly to the preview box
+        previewBox.style.boxShadow = cssValue;
+        hideError(); // Hide any previous error
+        
+        // Send to the plugin code for validation (send the original value)
+        parent.postMessage({ pluginMessage: { 
+          type: 'preview-shadow',
+          css: cssInput.value.trim()
+        } }, '*');
+        
+        // Enable the create button
+        createBtn.disabled = false;
+      } catch (error) {
+        showError('Invalid box-shadow format');
+        createBtn.disabled = true;
+      }
+    };
     
     // Create style button click handler
     createBtn.onclick = () => {
       const name = styleName.value.trim();
       if (!name) {
-        errorMessage.textContent = 'Please enter a style name';
+        showError('Please enter a style name');
         return;
       }
       
@@ -167,14 +516,14 @@
       const message = event.data.pluginMessage;
       
       if (message.type === 'error') {
-        errorMessage.textContent = message.message;
+        showError(message.message);
         // If there's an error, disable the create button
         createBtn.disabled = true;
       } else if (message.type === 'preview-success') {
-        errorMessage.textContent = '';
+        hideError();
         createBtn.disabled = false;
       } else if (message.type === 'success') {
-        errorMessage.textContent = '';
+        hideError();
         cssInput.value = '';
         styleName.value = '';
         createBtn.disabled = true;
