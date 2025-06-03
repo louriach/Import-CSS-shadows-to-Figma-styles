@@ -288,107 +288,236 @@ figma.ui.onmessage = async (msg) => {
     }
   }
   
-  else if (msg.type === 'create-style') {
+// Handle the get-collections message
+if (msg.type === 'get-collections') {
+  // Use the async version of getLocalVariableCollections
+  figma.variables.getLocalVariableCollectionsAsync()
+    .then(collections => {
+      // Send collections back to the UI
+      figma.ui.postMessage({
+        type: 'collections',
+        collections: collections.map(collection => ({
+          id: collection.id,
+          name: collection.name
+        }))
+      });
+    })
+    .catch(error => {
+      console.error('Error getting collections:', error);
+      // Send an empty array if there's an error
+      figma.ui.postMessage({
+        type: 'collections',
+        collections: []
+      });
+    });
+}
+
+// Create style and variables
+else if (msg.type === 'create-style') {
+  try {
+    const parsedEffects = parseCssBoxShadow(msg.css);
+    
+    if (parsedEffects.length === 0) {
+      figma.ui.postMessage({ 
+        type: 'error', 
+        message: 'Could not parse the CSS shadow format' 
+      });
+      return;
+    }
+    
+    // Create a new effect style
+    const style = figma.createEffectStyle();
+    style.name = msg.name;
+    
+    // Create the effects with direct values
+    const figmaEffects: Effect[] = [];
+    
+    for (const effect of parsedEffects) {
+      if (effect.type === 'DROP_SHADOW') {
+        const shadowEffect: DropShadowEffect = {
+          type: 'DROP_SHADOW',
+          color: {
+            r: effect.color.r,
+            g: effect.color.g,
+            b: effect.color.b,
+            a: effect.color.a
+          },
+          offset: {
+            x: isNaN(effect.offset.x) ? 0 : effect.offset.x,
+            y: isNaN(effect.offset.y) ? 0 : effect.offset.y
+          },
+          radius: isNaN(effect.radius) ? 0 : effect.radius,
+          spread: isNaN(effect.spread) ? 0 : effect.spread,
+          visible: true,
+          blendMode: 'NORMAL'
+        };
+        
+        figmaEffects.push(shadowEffect);
+      } else if (effect.type === 'INNER_SHADOW') {
+        const innerShadowEffect: InnerShadowEffect = {
+          type: 'INNER_SHADOW',
+          color: {
+            r: effect.color.r,
+            g: effect.color.g,
+            b: effect.color.b,
+            a: effect.color.a
+          },
+          offset: {
+            x: isNaN(effect.offset.x) ? 0 : effect.offset.x,
+            y: isNaN(effect.offset.y) ? 0 : effect.offset.y
+          },
+          radius: isNaN(effect.radius) ? 0 : effect.radius,
+          spread: isNaN(effect.spread) ? 0 : effect.spread,
+          visible: true,
+          blendMode: 'NORMAL'
+        };
+        
+        figmaEffects.push(innerShadowEffect);
+      }
+    }
+    
+    // Apply effects to the style
+    style.effects = figmaEffects;
+    
+    // Send success message back to UI
+    figma.ui.postMessage({ type: 'success' });
+    
+    // Notify about style creation
+    figma.notify(`Created style "${msg.name}"`);
+    
+// If variables are requested, handle separately
+if (msg.createVariables) {
+  // Create variables in a separate async function
+  const createVariables = async () => {
     try {
-      const parsedEffects = parseCssBoxShadow(msg.css);
+      let collection: VariableCollection;
       
-      if (parsedEffects.length === 0) {
-        figma.ui.postMessage({ 
-          type: 'error', 
-          message: 'Could not parse the CSS shadow format' 
-        });
-        return;
+      // Check if we need to create a new collection or use an existing one
+      if (!msg.collectionId || msg.collectionId === 'create-new') {
+        // Create a new collection with the provided name or default
+        const collectionName = msg.newCollectionName || "Effect Variables";
+        collection = figma.variables.createVariableCollection(collectionName);
+      } else {
+        // Try to get the existing collection using the async method
+        try {
+          const existingCollection = await figma.variables.getVariableCollectionByIdAsync(msg.collectionId);
+          if (existingCollection) {
+            collection = existingCollection;
+          } else {
+            // If collection is null, create a new one
+            const collectionName = msg.newCollectionName || "Effect Variables";
+            collection = figma.variables.createVariableCollection(collectionName);
+          }
+        } catch (collectionError) {
+          // Properly handle the unknown error type
+          let errorMessage = 'An unknown error occurred';
+          
+          if (collectionError && typeof collectionError === 'object' && 'message' in collectionError) {
+            errorMessage = String(collectionError.message);
+          } else if (typeof collectionError === 'string') {
+            errorMessage = collectionError;
+          }
+          
+          console.error('Error getting collection:', errorMessage);
+          // Fall back to creating a new collection
+          const collectionName = msg.newCollectionName || "Effect Variables";
+          collection = figma.variables.createVariableCollection(collectionName);
+        }
       }
       
-      // Create a new effect style
-      const style = figma.createEffectStyle();
-      style.name = msg.name;
-      
-      // Convert our parsed effects to Figma Effect objects
-      const figmaEffects: Effect[] = [];
-      
-      for (const effect of parsedEffects) {
-        // Create a proper Figma Effect object based on type
-        if (effect.type === 'DROP_SHADOW') {
-          const shadowEffect: DropShadowEffect = {
-            type: 'DROP_SHADOW',
-            color: {
-              r: effect.color.r,
-              g: effect.color.g,
-              b: effect.color.b,
-              a: effect.color.a
-            },
-            offset: {
-              x: effect.offset.x,
-              y: effect.offset.y
-            },
-            radius: effect.radius,
-            spread: effect.spread,
-            visible: true,
-            blendMode: 'NORMAL'
-          };
-          figmaEffects.push(shadowEffect);
+      // Create variables for each effect in the style
+      for (let i = 0; i < style.effects.length; i++) {
+        const effect = style.effects[i];
+        const suffix = i > 0 ? `-${i+1}` : ''; // Add suffix for multiple shadows
+        
+        if (effect.type === 'DROP_SHADOW' || effect.type === 'INNER_SHADOW') {
+          // Create x offset variable
+          const xVar = figma.variables.createVariable(
+            `effect-${msg.name}${suffix}-x`, 
+            collection,
+            'FLOAT'
+          );
+          xVar.setValueForMode(collection.defaultModeId, effect.offset.x || 0);
           
-          // Log the effect we're creating
-          console.log(`Creating DROP_SHADOW effect:`, {
-            color: `rgba(${Math.round(effect.color.r * 255)}, ${Math.round(effect.color.g * 255)}, ${Math.round(effect.color.b * 255)}, ${effect.color.a})`,
-            offset: effect.offset,
-            radius: effect.radius,
-            spread: effect.spread
-          });
-        } else if (effect.type === 'INNER_SHADOW') {
-          const innerShadowEffect: InnerShadowEffect = {
-            type: 'INNER_SHADOW',
-            color: {
-              r: effect.color.r,
-              g: effect.color.g,
-              b: effect.color.b,
-              a: effect.color.a
-            },
-            offset: {
-              x: effect.offset.x,
-              y: effect.offset.y
-            },
-            radius: effect.radius,
-            spread: effect.spread,
-            visible: true,
-            blendMode: 'NORMAL'
-          };
-          figmaEffects.push(innerShadowEffect);
+          // Create y offset variable
+          const yVar = figma.variables.createVariable(
+            `effect-${msg.name}${suffix}-y`, 
+            collection,
+            'FLOAT'
+          );
+          yVar.setValueForMode(collection.defaultModeId, effect.offset.y || 0);
           
-          // Log the effect we're creating
-          console.log(`Creating INNER_SHADOW effect:`, {
-            color: `rgba(${Math.round(effect.color.r * 255)}, ${Math.round(effect.color.g * 255)}, ${Math.round(effect.color.b * 255)}, ${effect.color.a})`,
-            offset: effect.offset,
-            radius: effect.radius,
-            spread: effect.spread
+          // Create blur radius variable
+          const blurVar = figma.variables.createVariable(
+            `effect-${msg.name}${suffix}-blur`, 
+            collection,
+            'FLOAT'
+          );
+          blurVar.setValueForMode(collection.defaultModeId, effect.radius || 0);
+          
+          // Create spread variable
+          const spreadVar = figma.variables.createVariable(
+            `effect-${msg.name}${suffix}-spread`, 
+            collection,
+            'FLOAT'
+          );
+          spreadVar.setValueForMode(collection.defaultModeId, effect.spread || 0);
+          
+          // Create color variable
+          const colorVar = figma.variables.createVariable(
+            `effect-${msg.name}${suffix}-color`, 
+            collection,
+            'COLOR'
+          );
+          colorVar.setValueForMode(collection.defaultModeId, {
+            r: effect.color.r,
+            g: effect.color.g,
+            b: effect.color.b,
+            a: effect.color.a
           });
         }
       }
       
-      // Apply all effects to the style
-      style.effects = figmaEffects;
-      
-      figma.ui.postMessage({ type: 'success' });
-      figma.notify(`Created style "${msg.name}" with ${figmaEffects.length} shadow${figmaEffects.length > 1 ? 's' : ''}`);
-      
+      // Show a notification about the variables
+      figma.notify(`Created variables in "${collection.name}" collection. Due to API limitations, variables cannot be automatically bound to the style.`, {  });
     } catch (error) {
-      // Handle the error properly with type checking
+      // Properly handle the unknown error type
       let errorMessage = 'An unknown error occurred';
       
-      // Check if error is an object with a message property
       if (error && typeof error === 'object' && 'message' in error) {
         errorMessage = String(error.message);
       } else if (typeof error === 'string') {
         errorMessage = error;
       }
       
-      figma.ui.postMessage({ 
-        type: 'error', 
-        message: 'Error creating style: ' + errorMessage 
-      });
+      console.error('Error creating variables:', error);
+      figma.notify(`Failed to create variables: ${errorMessage}`);
     }
+  };
+  
+  // Call the async function
+  createVariables();
+}
+    
+  } catch (error) {
+    // Handle the error properly with type checking
+    let errorMessage = 'An unknown error occurred';
+    
+    // Check if error is an object with a message property
+    if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = String(error.message);
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+    
+    console.error('Error creating style:', error);
+    
+    figma.ui.postMessage({ 
+      type: 'error', 
+      message: 'Error creating style: ' + errorMessage 
+    });
   }
+}
 };
 
 // This is needed to keep the plugin running

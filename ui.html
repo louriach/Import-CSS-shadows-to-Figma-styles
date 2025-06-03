@@ -51,9 +51,9 @@ table {
 }
     body {
       background-color: #f5f5f5;
-      color: #333;
+      color: #000;
       font-family: 'Inter', sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       height: 100vh;
       overflow: hidden;
     }
@@ -66,11 +66,9 @@ table {
     .left-column {
       background: rgba(255,255,255,.9);
       border-radius: 10px;
-      border: 1px solid rgba(0, 0, 0, .075);
+      box-shadow: 0px 0px 0px 1px rgba(0,0,0,.05), 1px 1px 4px rgba(0,0,0,.025);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      gap: 16px;
       margin: 4px;
       overflow-y: auto;
     }
@@ -103,15 +101,22 @@ table {
     input, button, textarea {
       border-radius: 4px;
       box-shadow: 0 1px 2px rgba(0,0,0,.02);
+      font-size: 100%;
       padding: 8px;
     }
     
     input {
       border: 1px solid rgba(0,0,0,.1);
+      box-shadow: 1px 1px 2px rgba(0,0,0,.05) inset;
+    }
+
+    input[type="checkbox"] {
+      margin: 0;
+      padding: 0;
     }
     
     button {
-      background: rgba(0,0,0,.75);
+      background: linear-gradient(180deg, #004735 0%, #002E22 100%);
       color: white;
       border: none;
       font-weight: 500;
@@ -120,11 +125,11 @@ table {
     }
     
     button:hover {
-      background: #005A43;
+      background: linear-gradient(180deg, #003225 0%, #00271D 100%);
     }
     
     button:disabled {
-      background-color: #CCCCCC;
+      background: #98AAA5;
       cursor: not-allowed;
     }
 
@@ -151,21 +156,93 @@ table {
       padding: 8px;
     }
     
-    .inline-form {
-      align-items: center;
-      border-top: 1px solid rgba(0, 0, 0, .05);
+    .button-group {
       display: flex;
-      gap: 4px;
-      padding: 12px;
+      gap: 8px;
     }
 
-    .inline-form label {
-      display: none;
-    }
-
-    .inline-form input {
+    .button-group button {
       flex: 1;
     }
+
+    .variables-section {
+      margin-bottom: 8px;
+    }
+  
+  .checkbox-container {
+    align-items: center;
+    display: flex;
+    gap: 4px;
+  }
+  
+  .collection-container {
+    background: rgba(0,0,0,.02);
+    border-radius: 4px;
+    padding: 4px;
+  }
+  
+  /* Radio list styling */
+.radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.radio-option:hover {
+  background-color: #f1f1f1;
+}
+
+.radio-option.selected {
+  background-color: #E6F7FF;
+}
+
+.radio-option input[type="radio"] {
+  margin: 0;
+}
+
+.create-collection-option {
+  border-top: 1px solid #E6E6E6;
+}
+
+.create-collection-option label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: #18A0FB;
+  font-weight: 500;
+}
+
+.create-collection-option input[type="radio"] {
+  display: none;
+}
+
+.create-collection-option svg {
+  flex-shrink: 0;
+}
+
+.new-collection-input-container {
+  margin-top: 8px;
+}
+
+#new-collection-name {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #E6E6E6;
+  border-radius: 4px;
+}
 
     .title {
       font-size: 16px;
@@ -190,13 +267,14 @@ table {
     }
     
     .color-circle {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
       border: 1px solid rgba(0,0,0,.075);
+      border-radius: 50%;
+      box-shadow: 1px 1px 2px rgba(0,0,0,.05) inset;
       cursor: pointer;
+      height: 24px;
       position: relative;
       overflow: hidden;
+      width: 24px;
     }
     
     .color-input {
@@ -274,14 +352,35 @@ table {
         <label for="css-input">CSS Box Shadow</label>
         <textarea id="css-input" placeholder="e.g., 0px 4px 8px rgba(0, 0, 0, 0.1)"></textarea>
         <div id="error-message" class="error"></div>
-        <button id="preview-btn">Preview</button>
-      </div>
-      
-      <div class="section">
-        <div class="inline-form">
-          <label for="style-name">Style Name</label>
-          <input type="text" id="style-name" placeholder="Shadow name">
+        <label for="style-name">Shadow name</label>
+        <input type="text" id="style-name" placeholder="e.g. Dialog">
+
+        <div class="button-group">
+          <button id="preview-btn">Preview</button>
           <button id="create-btn" disabled>Create style</button>
+        </div>
+
+        <div class="variables-section">
+          <div class="checkbox-container">
+            <input type="checkbox" id="create-variables" class="custom-checkbox">
+            <label for="create-variables">Also create variables</label>
+          </div>
+          
+          <div id="collection-container" class="collection-container" style="display: none;">
+            <p id="no-collections-message" style="display: none;">A collection will be created.</p>
+            
+            <div id="collection-select-container" class="collection-select-container" style="display: none;">
+              <label>Variable collection</label>
+              <div class="radio-list" id="collection-options">
+                <!-- Radio options will be added here dynamically -->
+              </div>
+              
+              <!-- Input for new collection name (hidden by default) -->
+              <div id="new-collection-input-container" class="new-collection-input-container" style="display: none;">
+                <input type="text" id="new-collection-name" placeholder="Collection name">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -346,190 +445,448 @@ table {
     </div>
   </div>
   <script>
-    // Get UI elements
-    const cssInput = document.getElementById('css-input');
-    const styleName = document.getElementById('style-name');
-    const previewBtn = document.getElementById('preview-btn');
-    const createBtn = document.getElementById('create-btn');
-    const previewBox = document.getElementById('preview');
-    const errorMessage = document.getElementById('error-message');
-    
-    // Background color picker elements
-    const bgColorPicker = document.getElementById('bg-color-picker');
-    const bgColorCircle = document.getElementById('bg-color-circle');
-    const bgColorPopover = document.getElementById('bg-color-popover');
-    const bgPresetColors = document.querySelectorAll('#bg-preset-colors .preset-color');
-    
-    // Card color picker elements
-    const cardColorPicker = document.getElementById('card-color-picker');
-    const cardColorCircle = document.getElementById('card-color-circle');
-    const cardColorPopover = document.getElementById('card-color-popover');
-    const cardPresetColors = document.querySelectorAll('#card-preset-colors .preset-color');
-    
-    // Initialize with default colors
-    let currentBgColor = '#F5F5F5';
-    let currentCardColor = '#FFFFFF';
-    document.body.style.backgroundColor = currentBgColor; // Change body background instead
-    previewBox.style.backgroundColor = currentCardColor;
-    
-    // Toggle background color popover
-    bgColorCircle.addEventListener('click', (e) => {
-      // Only toggle if the click was on the circle itself, not the color input
-      if (e.target === bgColorCircle) {
-        bgColorPopover.classList.toggle('active');
-        cardColorPopover.classList.remove('active'); // Close the other popover
-        e.stopPropagation();
+// Get UI elements
+const cssInput = document.getElementById('css-input');
+const styleName = document.getElementById('style-name');
+const previewBtn = document.getElementById('preview-btn');
+const createBtn = document.getElementById('create-btn');
+const previewBox = document.getElementById('preview');
+const errorMessage = document.getElementById('error-message');
+
+// Variables UI elements
+const createVariablesCheckbox = document.getElementById('create-variables');
+const collectionContainer = document.getElementById('collection-container');
+const noCollectionsMessage = document.getElementById('no-collections-message');
+const collectionSelectContainer = document.getElementById('collection-select-container');
+const collectionOptions = document.getElementById('collection-options');
+
+// Background color picker elements
+const bgColorPicker = document.getElementById('bg-color-picker');
+const bgColorCircle = document.getElementById('bg-color-circle');
+const bgColorPopover = document.getElementById('bg-color-popover');
+const bgPresetColors = document.querySelectorAll('#bg-preset-colors .preset-color');
+
+// Card color picker elements
+const cardColorPicker = document.getElementById('card-color-picker');
+const cardColorCircle = document.getElementById('card-color-circle');
+const cardColorPopover = document.getElementById('card-color-popover');
+const cardPresetColors = document.querySelectorAll('#card-preset-colors .preset-color');
+
+// Check if elements exist before adding event listeners
+if (!cssInput || !styleName || !previewBtn || !createBtn || !previewBox || !errorMessage) {
+  console.error('Required UI elements are missing');
+}
+
+if (!createVariablesCheckbox || !collectionContainer || !collectionOptions) {
+  console.error('Variable UI elements are missing');
+}
+
+// Variables for collections
+let collections = [];
+let selectedCollectionId = null;
+
+// Initialize with default colors
+let currentBgColor = '#F5F5F5';
+let currentCardColor = '#FFFFFF';
+if (document.body) document.body.style.backgroundColor = currentBgColor;
+if (previewBox) previewBox.style.backgroundColor = currentCardColor;
+
+// Function to show error message
+function showError(message) {
+  if (errorMessage) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block'; // Show the error element
+  }
+}
+
+// Function to hide error message
+function hideError() {
+  if (errorMessage) {
+    errorMessage.textContent = '';
+    errorMessage.style.display = 'none'; // Hide the error element
+  }
+}
+
+// Initialize by checking for collections
+parent.postMessage({ pluginMessage: { type: 'get-collections' } }, '*');
+
+// Create variables checkbox handler
+if (createVariablesCheckbox) {
+  createVariablesCheckbox.addEventListener('change', function() {
+    if (this.checked) {
+      if (collectionContainer) collectionContainer.style.display = 'block';
+      
+      // Show appropriate UI based on collections
+      if (collections.length === 0) {
+        if (noCollectionsMessage) noCollectionsMessage.style.display = 'none'; // Hide this since we're showing the radio list
+        if (collectionSelectContainer) collectionSelectContainer.style.display = 'block';
+        const newCollectionInput = document.getElementById('new-collection-input-container');
+        if (newCollectionInput) newCollectionInput.style.display = 'block';
+      } else {
+        if (noCollectionsMessage) noCollectionsMessage.style.display = 'none';
+        if (collectionSelectContainer) collectionSelectContainer.style.display = 'block';
       }
-    });
-    
-    // Toggle card color popover
-    cardColorCircle.addEventListener('click', (e) => {
-      // Only toggle if the click was on the circle itself, not the color input
-      if (e.target === cardColorCircle) {
-        cardColorPopover.classList.toggle('active');
-        bgColorPopover.classList.remove('active'); // Close the other popover
-        e.stopPropagation();
-      }
-    });
-    
-    // Close popovers when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!bgColorPopover.contains(e.target) && e.target !== bgColorCircle) {
-        bgColorPopover.classList.remove('active');
-      }
-      if (!cardColorPopover.contains(e.target) && e.target !== cardColorCircle) {
-        cardColorPopover.classList.remove('active');
-      }
-    });
-    
-    // Background color picker change handler
-    bgColorPicker.addEventListener('input', (e) => {
-      currentBgColor = e.target.value;
-      updateBackgroundColor();
-    });
-    
-    // Card color picker change handler
-    cardColorPicker.addEventListener('input', (e) => {
-      currentCardColor = e.target.value;
-      updateCardColor();
-    });
-    
-    // Background preset color click handler
-    bgPresetColors.forEach(preset => {
+    } else {
+      if (collectionContainer) collectionContainer.style.display = 'none';
+    }
+  });
+}
+
+// Toggle background color popover
+if (bgColorCircle && bgColorPopover) {
+  bgColorCircle.addEventListener('click', (e) => {
+    // Only toggle if the click was on the circle itself, not the color input
+    if (e.target === bgColorCircle) {
+      bgColorPopover.classList.toggle('active');
+      if (cardColorPopover) cardColorPopover.classList.remove('active'); // Close the other popover
+      e.stopPropagation();
+    }
+  });
+}
+
+// Toggle card color popover
+if (cardColorCircle && cardColorPopover) {
+  cardColorCircle.addEventListener('click', (e) => {
+    // Only toggle if the click was on the circle itself, not the color input
+    if (e.target === cardColorCircle) {
+      cardColorPopover.classList.toggle('active');
+      if (bgColorPopover) bgColorPopover.classList.remove('active'); // Close the other popover
+      e.stopPropagation();
+    }
+  });
+}
+
+// Close popovers when clicking outside
+document.addEventListener('click', (e) => {
+  if (bgColorPopover && !bgColorPopover.contains(e.target) && e.target !== bgColorCircle) {
+    bgColorPopover.classList.remove('active');
+  }
+  if (cardColorPopover && !cardColorPopover.contains(e.target) && e.target !== cardColorCircle) {
+    cardColorPopover.classList.remove('active');
+  }
+});
+
+// Background color picker change handler
+if (bgColorPicker) {
+  bgColorPicker.addEventListener('input', (e) => {
+    currentBgColor = e.target.value;
+    updateBackgroundColor();
+  });
+}
+
+// Card color picker change handler
+if (cardColorPicker) {
+  cardColorPicker.addEventListener('input', (e) => {
+    currentCardColor = e.target.value;
+    updateCardColor();
+  });
+}
+
+// Background preset color click handler
+if (bgPresetColors) {
+  bgPresetColors.forEach(preset => {
+    if (preset) {
       preset.addEventListener('click', () => {
         currentBgColor = preset.getAttribute('data-color');
-        bgColorPicker.value = currentBgColor;
+        if (bgColorPicker) bgColorPicker.value = currentBgColor;
         updateBackgroundColor();
-        bgColorPopover.classList.remove('active');
+        if (bgColorPopover) bgColorPopover.classList.remove('active');
       });
-    });
-    
-    // Card preset color click handler
-    cardPresetColors.forEach(preset => {
+    }
+  });
+}
+
+// Card preset color click handler
+if (cardPresetColors) {
+  cardPresetColors.forEach(preset => {
+    if (preset) {
       preset.addEventListener('click', () => {
         currentCardColor = preset.getAttribute('data-color');
-        cardColorPicker.value = currentCardColor;
+        if (cardColorPicker) cardColorPicker.value = currentCardColor;
         updateCardColor();
-        cardColorPopover.classList.remove('active');
+        if (cardColorPopover) cardColorPopover.classList.remove('active');
       });
+    }
+  });
+}
+
+// Update background color function
+function updateBackgroundColor() {
+  if (document.body) document.body.style.backgroundColor = currentBgColor;
+  if (bgColorCircle) bgColorCircle.style.backgroundColor = currentBgColor;
+}
+
+// Update card color function
+function updateCardColor() {
+  if (previewBox) previewBox.style.backgroundColor = currentCardColor;
+  if (cardColorCircle) cardColorCircle.style.backgroundColor = currentCardColor;
+}
+
+// Function to update selected radio option styling
+function updateSelectedRadioOption(selectedOption) {
+  // Remove selected class from all options
+  const options = document.querySelectorAll('.radio-option');
+  options.forEach(option => {
+    option.classList.remove('selected');
+  });
+  
+  // Add selected class to the clicked option
+  if (selectedOption) selectedOption.classList.add('selected');
+}
+
+// Function to populate collections radio list
+function populateCollections(collectionsList) {
+  collections = collectionsList || []; // Ensure collections is an array even if null/undefined
+  
+  // Clear existing options
+  if (collectionOptions) collectionOptions.innerHTML = '';
+  else return; // Exit if collectionOptions doesn't exist
+  
+  // Check if we have any collections
+  if (collections.length === 0) {
+    // No collections - show the empty state with just an input field
+    if (collectionSelectContainer) {
+      // Clear any existing content
+      collectionSelectContainer.innerHTML = '';
+      
+      // Create the label and input
+      const label = document.createElement('label');
+      label.htmlFor = 'new-collection-name';
+      label.textContent = 'Create new collection';
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'new-collection-name';
+      input.placeholder = 'Collection name';
+      input.className = 'collection-name-input';
+      
+      // Add them to the container
+      collectionSelectContainer.appendChild(label);
+      collectionSelectContainer.appendChild(input);
+      
+      // Set the selected collection ID
+      selectedCollectionId = 'create-new';
+    }
+    
+    // Show the collection selector when the checkbox is checked
+    if (createVariablesCheckbox && createVariablesCheckbox.checked) {
+      if (noCollectionsMessage) noCollectionsMessage.style.display = 'none';
+      if (collectionSelectContainer) collectionSelectContainer.style.display = 'block';
+    } else if (collectionContainer) {
+      collectionContainer.style.display = 'none';
+    }
+    
+    return; // Exit early
+  }
+  
+  // If we have collections, show the radio list
+  // Create a radio group name
+  const radioGroupName = 'collection-radio-group';
+  
+  // Add each collection as a radio option
+  collections.forEach((collection, index) => {
+    const option = document.createElement('div');
+    option.className = 'radio-option';
+    
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = radioGroupName;
+    radio.id = `collection-${collection.id}`;
+    radio.value = collection.id;
+    radio.checked = index === 0; // Select first option by default
+    
+    const label = document.createElement('label');
+    label.htmlFor = `collection-${collection.id}`;
+    label.textContent = collection.name;
+    
+    option.appendChild(radio);
+    option.appendChild(label);
+    
+    // Add click handler for the entire option div
+    option.addEventListener('click', function() {
+      // Check the radio button
+      radio.checked = true;
+      
+      // Update selected collection
+      selectedCollectionId = collection.id;
+      
+      // Update selected styling
+      updateSelectedRadioOption(this);
+      
+      // Hide new collection input
+      const newCollectionInput = document.getElementById('new-collection-input-container');
+      if (newCollectionInput) newCollectionInput.style.display = 'none';
     });
     
-    // Update background color function
-    function updateBackgroundColor() {
-      document.body.style.backgroundColor = currentBgColor; // Change body background instead
-      bgColorCircle.style.backgroundColor = currentBgColor;
+    collectionOptions.appendChild(option);
+    
+    // If this is the first option, mark it as selected
+    if (index === 0) {
+      selectedCollectionId = collection.id;
+      option.classList.add('selected');
+    }
+  });
+  
+  // Add "Create collection" option
+  const createOption = document.createElement('div');
+  createOption.className = 'radio-option create-collection-option';
+  
+  const createRadio = document.createElement('input');
+  createRadio.type = 'radio';
+  createRadio.name = radioGroupName;
+  createRadio.id = 'collection-create-new';
+  createRadio.value = 'create-new';
+  
+  // Add SVG icon and label
+  const createLabel = document.createElement('label');
+  createLabel.htmlFor = 'collection-create-new';
+  createLabel.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus-icon">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M8 12h8"/>
+      <path d="M12 8v8"/>
+    </svg>
+    New collection
+  `;
+  
+  createOption.appendChild(createRadio);
+  createOption.appendChild(createLabel);
+  
+  // Add click handler
+  createOption.addEventListener('click', function() {
+    // Check the radio button
+    createRadio.checked = true;
+    
+    // Update selected collection
+    selectedCollectionId = 'create-new';
+    
+    // Update selected styling
+    updateSelectedRadioOption(this);
+    
+    // Show new collection input
+    const newCollectionInput = document.getElementById('new-collection-input-container');
+    if (newCollectionInput) {
+      newCollectionInput.style.display = 'block';
+      const nameInput = document.getElementById('new-collection-name');
+      if (nameInput) nameInput.focus();
+    }
+  });
+  
+  // Add to radio list
+  collectionOptions.appendChild(createOption);
+  
+  // Always show the collection selector when the checkbox is checked
+  if (createVariablesCheckbox && createVariablesCheckbox.checked) {
+    if (noCollectionsMessage) noCollectionsMessage.style.display = 'none';
+    if (collectionSelectContainer) collectionSelectContainer.style.display = 'block';
+  } else if (collectionContainer) {
+    collectionContainer.style.display = 'none';
+  }
+}
+
+// Preview button click handler
+if (previewBtn) {
+  previewBtn.onclick = () => {
+    if (!cssInput || !previewBox) return;
+    
+    let cssValue = cssInput.value.trim();
+    if (!cssValue) {
+      showError('Please enter a CSS box-shadow value');
+      return;
     }
     
-    // Update card color function
-    function updateCardColor() {
-      previewBox.style.backgroundColor = currentCardColor;
-      cardColorCircle.style.backgroundColor = currentCardColor;
-    }
-
-    // Function to show error message
-    function showError(message) {
-      errorMessage.textContent = message;
-      errorMessage.style.display = 'block'; // Show the error element
-    }
-
-    // Function to hide error message
-    function hideError() {
-      errorMessage.textContent = '';
-      errorMessage.style.display = 'none'; // Hide the error element
-    }    
-    
-    // Preview button click handler
-    previewBtn.onclick = () => {
-      let cssValue = cssInput.value.trim();
-      if (!cssValue) {
-        showError('Please enter a CSS box-shadow value');
-        return;
+    try {
+      // Clean up the CSS value for preview:
+      // 1. Remove 'box-shadow:' prefix if present
+      if (cssValue.toLowerCase().indexOf('box-shadow:') === 0) {
+        cssValue = cssValue.substring('box-shadow:'.length).trim();
       }
       
-      try {
-        // Clean up the CSS value for preview:
-        // 1. Remove 'box-shadow:' prefix if present
-        if (cssValue.toLowerCase().indexOf('box-shadow:') === 0) {
-          cssValue = cssValue.substring('box-shadow:'.length).trim();
-        }
-        
-        // 2. Remove trailing semicolon if present
-        if (cssValue.endsWith(';')) {
-          cssValue = cssValue.slice(0, -1).trim();
-        }
-        
-        // Apply the shadow directly to the preview box
-        previewBox.style.boxShadow = cssValue;
-        hideError(); // Hide any previous error
-        
-        // Send to the plugin code for validation (send the original value)
-        parent.postMessage({ pluginMessage: { 
-          type: 'preview-shadow',
-          css: cssInput.value.trim()
-        } }, '*');
-        
-        // Enable the create button
-        createBtn.disabled = false;
-      } catch (error) {
-        showError('Invalid box-shadow format');
-        createBtn.disabled = true;
-      }
-    };
-    
-    // Create style button click handler
-    createBtn.onclick = () => {
-      const name = styleName.value.trim();
-      if (!name) {
-        showError('Please enter a style name');
-        return;
+      // 2. Remove trailing semicolon if present
+      if (cssValue.endsWith(';')) {
+        cssValue = cssValue.slice(0, -1).trim();
       }
       
+      // Apply the shadow directly to the preview box
+      previewBox.style.boxShadow = cssValue;
+      hideError();
+      
+      // Send to the plugin code for validation (send the original value)
       parent.postMessage({ pluginMessage: { 
-        type: 'create-style',
-        css: cssInput.value.trim(),
-        name: name
+        type: 'preview-shadow',
+        css: cssInput.value.trim()
       } }, '*');
+      
+      // Enable the create button
+      if (createBtn) createBtn.disabled = false;
+    } catch (error) {
+      showError('Invalid box-shadow format');
+      if (createBtn) createBtn.disabled = true;
+    }
+  };
+}
+
+// Create style button click handler
+if (createBtn) {
+  createBtn.onclick = () => {
+    if (!cssInput || !styleName) return;
+    
+    const name = styleName.value.trim();
+    if (!name) {
+      showError('Please enter a style name');
+      return;
+    }
+    
+    // Prepare message with additional variable creation info
+    const message = {
+      type: 'create-style',
+      css: cssInput.value.trim(),
+      name: name,
+      createVariables: createVariablesCheckbox ? createVariablesCheckbox.checked : false
     };
     
-    // Listen for messages from the plugin code
-    window.onmessage = (event) => {
-      const message = event.data.pluginMessage;
-      
-      if (message.type === 'error') {
-        showError(message.message);
-        // If there's an error, disable the create button
-        createBtn.disabled = true;
-      } else if (message.type === 'preview-success') {
-        hideError();
-        createBtn.disabled = false;
-      } else if (message.type === 'success') {
-        hideError();
-        cssInput.value = '';
-        styleName.value = '';
-        createBtn.disabled = true;
-        previewBox.style.boxShadow = 'none';
+    // Add collection info if variables are being created
+    if (createVariablesCheckbox && createVariablesCheckbox.checked) {
+      if (selectedCollectionId === 'create-new') {
+        // Get the new collection name
+        const newCollectionNameInput = document.getElementById('new-collection-name');
+        const newCollectionName = newCollectionNameInput ? newCollectionNameInput.value.trim() : '';
+        if (newCollectionName) {
+          message.newCollectionName = newCollectionName;
+        } else {
+          message.newCollectionName = 'Effect Variables';
+        }
+      } else {
+        message.collectionId = selectedCollectionId;
       }
-    };
-  </script>
+    }
+    
+    parent.postMessage({ pluginMessage: message }, '*');
+  };
+}
+
+// Listen for messages from the plugin code
+window.onmessage = (event) => {
+  const message = event.data.pluginMessage;
+  
+  if (message.type === 'error') {
+    showError(message.message);
+    // If there's an error, disable the create button
+    if (createBtn) createBtn.disabled = true;
+  } else if (message.type === 'preview-success') {
+    hideError();
+    if (createBtn) createBtn.disabled = false;
+  } else if (message.type === 'success') {
+    hideError();
+    if (cssInput) cssInput.value = '';
+    if (styleName) styleName.value = '';
+    if (createBtn) createBtn.disabled = true;
+    if (previewBox) previewBox.style.boxShadow = 'none';
+  } else if (message.type === 'collections') {
+    // Handle received collections
+    populateCollections(message.collections);
+  }
+};
+    </script>
 </body>
 </html>
