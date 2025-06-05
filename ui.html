@@ -52,7 +52,7 @@ table {
     body {
       background-color: #f5f5f5;
       color: #000;
-      font-family: 'Inter', sans-serif;
+      font-family: sans-serif;
       font-size: 12px;
       height: 100vh;
       overflow: hidden;
@@ -117,6 +117,7 @@ table {
     
     button {
       background: linear-gradient(180deg, #004735 0%, #002E22 100%);
+      box-shadow: 0px 1px 4px -4px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.2), inset 2px 2px 8px rgba(255, 255, 255, 0.3);
       color: white;
       border: none;
       font-weight: 500;
@@ -138,11 +139,13 @@ table {
       flex-direction: column;
       gap: 8px;
       padding: 12px;
+      width: 240px;
     }
     
     .preview-box {
       background-color: #fff;
       border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.02), 2px 2px 0 rgba(0,0,0,.1);
       height: 240px;
       transition: background-color 0.3s ease;
       width: 240px;
@@ -166,7 +169,11 @@ table {
     }
 
     .variables-section {
+      background: rgba(0, 0, 0, .02);
+      border: 1px solid rgba(0, 0, 0, .05);
+      border-radius: 8px;
       margin-top: 8px;
+      padding: 8px;
     }
   
   .checkbox-container {
@@ -176,21 +183,17 @@ table {
   }
   
   .collection-container {
-    background: rgba(0,0,0,.02);
-    border: 1px solid rgba(0,0,0,.05);
-    border-radius: 4px;
+    border-top: 1px solid rgba(0,0,0,.05);
     margin-top: 8px;
-    padding: 4px;
+    padding-top: 8px;
   }
   
   /* Radio list styling */
 .radio-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   margin-top: 8px;
-  max-height: 200px;
-  overflow-y: auto;
 }
 
 .radio-option {
@@ -203,11 +206,11 @@ table {
 }
 
 .radio-option:hover {
-  background-color: #f1f1f1;
+  background-color: rgba(0,0,0,.05);
 }
 
 .radio-option.selected {
-  background-color: #E6F7FF;
+  background-color: #EBEFEE;
 }
 
 .radio-option input[type="radio"] {
@@ -215,15 +218,13 @@ table {
 }
 
 .create-collection-option {
-  border-top: 1px solid #E6E6E6;
 }
 
 .create-collection-option label {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 4px;
-  color: #18A0FB;
+  color: #004735;
   font-weight: 500;
 }
 
@@ -239,12 +240,17 @@ table {
   margin-top: 8px;
 }
 
-#new-collection-name {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #E6E6E6;
-  border-radius: 4px;
+.collection-name-input {
+  margin-top: 8px;
 }
+
+.new-collection-input-container input {
+  width: 100%;
+}
+
+.collection-name-input {
+  width: 100%;
+ }
 
     .title {
       font-size: 16px;
@@ -256,9 +262,9 @@ table {
     .color-picker-section {
       align-items: center;
       background-color: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(0,0,0,.075);
+      border: 1px solid rgba(0,0,0,.2);
       border-radius: 24px;
-      box-shadow: 0 1px 2px rgba(0,0,0,.02);
+      box-shadow: 0 1px 2px rgba(0,0,0,.02), 2px 2px 0 rgba(0,0,0,.1);
       display: flex;
       margin-bottom: 12px;
       padding: 8px;
@@ -307,27 +313,6 @@ table {
       display: block;
     }
     
-    .popover-title {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 12px;
-    }
-    
-    .preset-colors {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    
-    .preset-color {
-      width: 32px;
-      height: 32px;
-      border-radius: 4px;
-      cursor: pointer;
-      border: 1px solid #E6E6E6;
-    }
-    
     .color-picker-container {
       position: relative;
     }
@@ -372,7 +357,7 @@ table {
             <p id="no-collections-message" style="display: none;">A collection will be created.</p>
             
             <div id="collection-select-container" class="collection-select-container" style="display: none;">
-              <label>Variable collection</label>
+              <label>Select a variable collection</label>
               <div class="radio-list" id="collection-options">
                 <!-- Radio options will be added here dynamically -->
               </div>
@@ -402,18 +387,6 @@ table {
                 </div>
                 <div class="popover" id="bg-color-popover">
                   <div class="popover-title">Select Background Color</div>
-                  <div class="preset-colors" id="bg-preset-colors">
-                    <div class="preset-color" style="background-color: #FFFFFF;" data-color="#FFFFFF" title="White"></div>
-                    <div class="preset-color" style="background-color: #F5F5F5;" data-color="#F5F5F5" title="Light Gray"></div>
-                    <div class="preset-color" style="background-color: #E0E0E0;" data-color="#E0E0E0" title="Gray"></div>
-                    <div class="preset-color" style="background-color: #333333;" data-color="#333333" title="Dark Gray"></div>
-                    <div class="preset-color" style="background-color: #000000;" data-color="#000000" title="Black"></div>
-                    <div class="preset-color" style="background-color: #18A0FB;" data-color="#18A0FB" title="Blue"></div>
-                    <div class="preset-color" style="background-color: #FF3366;" data-color="#FF3366" title="Red"></div>
-                    <div class="preset-color" style="background-color: #00CC66;" data-color="#00CC66" title="Green"></div>
-                    <div class="preset-color" style="background-color: #FFCC00;" data-color="#FFCC00" title="Yellow"></div>
-                    <div class="preset-color" style="background-color: #9966FF;" data-color="#9966FF" title="Purple"></div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -427,18 +400,6 @@ table {
                 </div>
                 <div class="popover" id="card-color-popover">
                   <div class="popover-title">Select Card Color</div>
-                  <div class="preset-colors" id="card-preset-colors">
-                    <div class="preset-color" style="background-color: #FFFFFF;" data-color="#FFFFFF" title="White"></div>
-                    <div class="preset-color" style="background-color: #F5F5F5;" data-color="#F5F5F5" title="Light Gray"></div>
-                    <div class="preset-color" style="background-color: #E0E0E0;" data-color="#E0E0E0" title="Gray"></div>
-                    <div class="preset-color" style="background-color: #333333;" data-color="#333333" title="Dark Gray"></div>
-                    <div class="preset-color" style="background-color: #000000;" data-color="#000000" title="Black"></div>
-                    <div class="preset-color" style="background-color: #18A0FB;" data-color="#18A0FB" title="Blue"></div>
-                    <div class="preset-color" style="background-color: #FF3366;" data-color="#FF3366" title="Red"></div>
-                    <div class="preset-color" style="background-color: #00CC66;" data-color="#00CC66" title="Green"></div>
-                    <div class="preset-color" style="background-color: #FFCC00;" data-color="#FFCC00" title="Yellow"></div>
-                    <div class="preset-color" style="background-color: #9966FF;" data-color="#9966FF" title="Purple"></div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -465,14 +426,11 @@ const collectionOptions = document.getElementById('collection-options');
 // Background color picker elements
 const bgColorPicker = document.getElementById('bg-color-picker');
 const bgColorCircle = document.getElementById('bg-color-circle');
-const bgColorPopover = document.getElementById('bg-color-popover');
-const bgPresetColors = document.querySelectorAll('#bg-preset-colors .preset-color');
 
 // Card color picker elements
 const cardColorPicker = document.getElementById('card-color-picker');
 const cardColorCircle = document.getElementById('card-color-circle');
 const cardColorPopover = document.getElementById('card-color-popover');
-const cardPresetColors = document.querySelectorAll('#card-preset-colors .preset-color');
 
 // Check if elements exist before adding event listeners
 if (!cssInput || !styleName || !previewBtn || !createBtn || !previewBox || !errorMessage) {
@@ -535,11 +493,10 @@ if (createVariablesCheckbox) {
 }
 
 // Toggle background color popover
-if (bgColorCircle && bgColorPopover) {
+if (bgColorCircle) {
   bgColorCircle.addEventListener('click', (e) => {
     // Only toggle if the click was on the circle itself, not the color input
     if (e.target === bgColorCircle) {
-      bgColorPopover.classList.toggle('active');
       if (cardColorPopover) cardColorPopover.classList.remove('active'); // Close the other popover
       e.stopPropagation();
     }
@@ -552,7 +509,6 @@ if (cardColorCircle && cardColorPopover) {
     // Only toggle if the click was on the circle itself, not the color input
     if (e.target === cardColorCircle) {
       cardColorPopover.classList.toggle('active');
-      if (bgColorPopover) bgColorPopover.classList.remove('active'); // Close the other popover
       e.stopPropagation();
     }
   });
@@ -560,9 +516,6 @@ if (cardColorCircle && cardColorPopover) {
 
 // Close popovers when clicking outside
 document.addEventListener('click', (e) => {
-  if (bgColorPopover && !bgColorPopover.contains(e.target) && e.target !== bgColorCircle) {
-    bgColorPopover.classList.remove('active');
-  }
   if (cardColorPopover && !cardColorPopover.contains(e.target) && e.target !== cardColorCircle) {
     cardColorPopover.classList.remove('active');
   }
@@ -581,34 +534,6 @@ if (cardColorPicker) {
   cardColorPicker.addEventListener('input', (e) => {
     currentCardColor = e.target.value;
     updateCardColor();
-  });
-}
-
-// Background preset color click handler
-if (bgPresetColors) {
-  bgPresetColors.forEach(preset => {
-    if (preset) {
-      preset.addEventListener('click', () => {
-        currentBgColor = preset.getAttribute('data-color');
-        if (bgColorPicker) bgColorPicker.value = currentBgColor;
-        updateBackgroundColor();
-        if (bgColorPopover) bgColorPopover.classList.remove('active');
-      });
-    }
-  });
-}
-
-// Card preset color click handler
-if (cardPresetColors) {
-  cardPresetColors.forEach(preset => {
-    if (preset) {
-      preset.addEventListener('click', () => {
-        currentCardColor = preset.getAttribute('data-color');
-        if (cardColorPicker) cardColorPicker.value = currentCardColor;
-        updateCardColor();
-        if (cardColorPopover) cardColorPopover.classList.remove('active');
-      });
-    }
   });
 }
 
