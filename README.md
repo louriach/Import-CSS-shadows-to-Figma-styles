@@ -1,40 +1,78 @@
-Below are the steps to get your plugin running. You can also find instructions at:
+# CSS shadows to Figma styles
 
-  https://www.figma.com/plugin-docs/plugin-quickstart-guide/
+A [Figma](https://www.figma.com/) plugin that turns CSS [`box-shadow`](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow) values into **local effect styles** (drop and inner shadows). Paste shadow definitions from your codebase or design tokens, preview them, then create a named style in the current file. You can optionally generate **variables** for each shadow’s offset, blur, spread, and color in a chosen or new variable collection.
 
-This plugin template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+## Features
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+- **CSS-accurate parsing** — Multiple comma-separated shadows, `inset` inner shadows, and flexible token order (color, lengths, and `inset` can appear in different positions, per the CSS grammar).
+- **Colors** — Hex (`#rgb`, `#rrggbb`, `#rrggbbaa`), named CSS colors, `rgb()` / `rgba()` (legacy commas and modern space-separated syntax with `/` alpha), `hsl()` / `hsla()`, and `color-mix(in srgb, …)` for tokenized shadows from modern CSS.
+- **Live preview** — See the shadow on a card in the plugin UI; adjust background and card colors to check contrast.
+- **Effect styles** — Creates a Figma **effect style** with the parsed shadows.
+- **Optional variables** — When enabled, creates `FLOAT` variables (x, y, blur, spread) and `COLOR` variables per shadow layer. The Figma Plugin API does not bind these variables to the style automatically; you’ll see a short notice after creation.
 
-  https://nodejs.org/en/download/
+## Requirements
 
-Next, install TypeScript using the command:
+- [Node.js](https://nodejs.org/) (includes npm) — for installing dependencies and compiling TypeScript.
+- Figma desktop or Figma in the browser.
 
-  npm install -g typescript
+## Setup
 
-Finally, in the directory of your plugin, get the latest type definitions for the plugin API by running:
+1. Clone this repository and open the project folder in a terminal.
 
-  npm install --save-dev @figma/plugin-typings
+2. Install dependencies:
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+   ```bash
+   npm install
+   ```
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
+3. Compile TypeScript to JavaScript (output: `code.js`, which is listed in `.gitignore`):
 
-For more information, visit https://www.typescriptlang.org/
+   ```bash
+   npm run build
+   ```
 
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
+   For development, keep the compiler running while you edit:
 
-We recommend writing TypeScript code using Visual Studio code:
+   ```bash
+   npm run watch
+   ```
 
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-    then select "npm: watch". You will have to do this again every time
-    you reopen Visual Studio Code.
+## Load the plugin in Figma
 
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+1. In Figma: **Plugins → Development → Import plugin from manifest…**
+2. Choose the `manifest.json` file in this project’s root folder.
+3. Run it via **Plugins → Development → CSS shadows to Figma styles** (or your imported plugin name).
+
+Official plugin development docs: [Plugin quickstart guide](https://www.figma.com/plugin-docs/plugin-quickstart-guide/).
+
+## Usage
+
+1. Open the plugin.
+2. Paste a CSS `box-shadow` value into **CSS Box Shadow**. You can paste the full declaration (e.g. `box-shadow: 0 4px 8px rgba(0,0,0,0.1);`) or just the value.
+3. Enter a **Shadow name** for the new effect style.
+4. Click **Preview** to validate parsing and preview the shadow. **Create style** unlocks after a successful preview.
+5. Click **Create style** to add the effect style to the document.
+6. (Optional) Check **Also create variables**, pick an existing variable collection or **New collection**, then create — variables are created for each shadow layer’s numeric and color channels.
+
+## Scripts
+
+| Command | Description |
+|--------|-------------|
+| `npm run build` | Compile `code.ts` → `code.js` |
+| `npm run watch` | Same as build in watch mode |
+| `npm test` | Build, then run `test-parser.js` (parser unit checks) |
+| `npm run lint` | ESLint on TypeScript sources |
+| `npm run lint:fix` | ESLint with auto-fix |
+
+## Project layout
+
+| File | Role |
+|------|------|
+| `code.ts` | Plugin main thread: CSS parsing, Figma API (effect styles, variables) |
+| `ui.html` | Plugin UI: textarea, preview, variable collection UI |
+| `manifest.json` | Figma plugin manifest (`main`: `code.js`, `ui`: `ui.html`) |
+| `test-parser.js` | Loads compiled `code.js` in Node with stubbed `figma` and asserts parser behavior |
+
+## License
+
+Add a license in `package.json` and/or a `LICENSE` file if you publish this project.
